@@ -2,7 +2,18 @@
 
 import cv2 as cv
 
-def take_picture(webcam):
+def get_picture_name():
+  with open("counter.txt", "r") as f:
+    counter = int(f.readline())
+    return str(counter).zfill(15) + ".png"
+
+def increm_counter():
+  with open("counter.txt", "r+") as f:
+    counter = int(f.readline()) + 1
+    f.seek(0)
+    f.write(str(counter))
+    
+def take_picture(webcam, picture_name):
   if webcam.isOpened():
     validation, frame = webcam.read()
     while validation:
@@ -10,14 +21,13 @@ def take_picture(webcam):
       cv.imshow("Webcam", frame)
       key = cv.waitKey(5)
       if key == -1: continue
-      print(key)
       match key:
         # esc
         case 27: return False
         # return
         case 13: break
 
-    cv.imwrite("foto.png", frame)
+    cv.imwrite(picture_name, frame)
     cv.destroyAllWindows()
     return True
 
@@ -25,10 +35,11 @@ def main():
   webcam = cv.VideoCapture(0)
 
   while True:
-    if(not take_picture(webcam)): break
+    picture_name = get_picture_name()
+    if not take_picture(webcam, picture_name): break
 
-    img = cv.imread("foto.png")
-    cv.imshow("foto.png", img)
+    img = cv.imread(picture_name)
+    cv.imshow(picture_name, img)
 
     key = cv.waitKey(0)
     match key:
@@ -37,7 +48,9 @@ def main():
         cv.destroyAllWindows()
         continue 
       # enter
-      case 13: break
+      case 13: 
+        increm_counter()
+        break
 
   webcam.release()
   cv.destroyAllWindows()
