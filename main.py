@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import cv2 as cv
+  
+PICS_DIR = 'pics/'
 
 def get_picture_name():
   with open("counter.txt", "r") as f:
@@ -27,7 +29,7 @@ def take_picture(webcam, picture_name):
         # return
         case 13: break
 
-    cv.imwrite(picture_name, frame)
+    cv.imwrite(PICS_DIR + picture_name, frame)
     cv.destroyAllWindows()
     return True
 
@@ -38,7 +40,7 @@ def main():
     picture_name = get_picture_name()
     if not take_picture(webcam, picture_name): break
 
-    img = cv.imread(picture_name)
+    img = cv.imread(PICS_DIR + picture_name)
     cv.imshow(picture_name, img)
 
     key = cv.waitKey(0)
