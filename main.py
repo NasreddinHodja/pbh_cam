@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import shutil
+import os
 import subprocess
 import cv2 as cv
   
@@ -35,8 +36,15 @@ def take_picture(webcam, picture_name):
     cv.destroyAllWindows()
     return True
 
+def get_email():
+  print('[[ E-MAIL ]] ~ ', end='')
+  email = input()
+  os.system('clear')
+  return email
+
 def main():
   webcam = cv.VideoCapture(0)
+  email = get_email()
 
   while True:
     picture_name = get_picture_name()
