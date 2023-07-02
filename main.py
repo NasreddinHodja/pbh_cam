@@ -5,7 +5,6 @@ import subprocess
 import cv2 as cv
   
 PICS_DIR = "./pics/"
-PICSENDER_DIR = "/home/nasreddin/prog/pbh_picsender/"
 
 def get_picture_name():
   with open("counter.txt", "r") as f:
@@ -33,7 +32,6 @@ def take_picture(webcam, picture_name):
         case 13: break
 
     cv.imwrite(PICS_DIR + picture_name, frame)
-    shutil.copy(PICS_DIR + picture_name, PICSENDER_DIR + picture_name)
     cv.destroyAllWindows()
     return True
 
@@ -56,7 +54,6 @@ def main():
       # enter
       case 13: 
         increm_counter()
-        subprocess.run([PICSENDER_DIR + "main.py"])
         break
 
   webcam.release()
