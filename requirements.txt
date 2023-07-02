@@ -140,6 +140,7 @@ pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.5.0
 platformdirs==2.5.2
+plum-py==0.8.6
 plumbum==1.7.0
 pop-transition==1.1.2
 progressbar2==3.53.1
@@ -160,6 +161,7 @@ pycups==2.0.1
 pydata-google-auth==1.4.0
 pydbus==0.6.0
 PyExecJS==1.5.1
+pyexiv2==2.8.1
 pyfzf==0.2.2
 Pygments==2.13.0
 PyGObject==3.42.1

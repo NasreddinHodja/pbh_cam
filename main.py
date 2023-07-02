@@ -4,6 +4,7 @@ import shutil
 import os
 import subprocess
 import cv2 as cv
+import pyexiv2
   
 PICS_DIR = "./pics/"
 
@@ -19,28 +20,35 @@ def increm_counter():
     f.write(str(counter))
     
 def take_picture(webcam, picture_name):
-  if webcam.isOpened():
-    validation, frame = webcam.read()
-    while validation:
-      validation, frame = webcam.read()
-      cv.imshow("Webcam", frame)
-      key = cv.waitKey(5)
-      if key == -1: continue
-      match key:
-        # esc
-        case 27: return False
-        # return
-        case 13: break
+  if not webcam.isOpened(): return
 
-    cv.imwrite(PICS_DIR + picture_name, frame)
-    cv.destroyAllWindows()
-    return True
+  validation, frame = webcam.read()
+  while validation:
+    validation, frame = webcam.read()
+    cv.imshow("Webcam", frame)
+    key = cv.waitKey(5)
+    if key == -1: continue
+    match key:
+      # esc
+      case 27: return False
+      # return
+      case 13: break
+
+  cv.imwrite(PICS_DIR + picture_name, frame)
+  cv.destroyAllWindows()
+  return True
 
 def get_email():
-  print('[[ E-MAIL ]] ~ ', end='')
+  print('\n\\ \\ [[ E-MAIL ]] ~ ', end='')
   email = input()
   os.system('clear')
   return email
+
+def add_email_exif(path, email):
+  metadata = pyexiv2.ImageMetadata(path)
+  metadata.read()
+  metadata['Exif.Image.Artist'] = pyexiv2.ExifTag('Exif.Image.Artist', email)
+  metadata.write()
 
 def main():
   webcam = cv.VideoCapture(0)
@@ -62,6 +70,7 @@ def main():
       # enter
       case 13: 
         increm_counter()
+        add_email_exif(PICS_DIR + picture_name, email)
         break
 
   webcam.release()
