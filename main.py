@@ -3,7 +3,7 @@
 import shutil
 import os
 import subprocess
-import cv2 as cv
+import pygame.camera
 import pyexiv2
   
 PICS_DIR = "./pics/"
@@ -20,24 +20,27 @@ def increm_counter():
     f.seek(0)
     f.write(str(counter))
     
-def take_picture(webcam, picture_name):
-  if not webcam.isOpened(): return
+def take_picture(webcam, window, clock, picture_name):
+  run = True
+  image = 0
+  while run:
+    clock.tick(100)
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT: return False
+      if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE: return False
+        if event.key == pygame.K_RETURN:
+          run = False
 
-  validation, frame = webcam.read()
-  while validation:
-    validation, frame = webcam.read()
-    cv.imshow("Webcam", frame)
-    key = cv.waitKey(5)
-    if key == -1: continue
-    match key:
-      # esc
-      case 27: return False
-      # return
-      case 13: break
+    camera_frame = webcam.get_image()
+    image = camera_frame
 
-  cv.imwrite(PICS_DIR + picture_name, frame)
-  shutil.copy(PICS_DIR + picture_name, PICSENDER_DIR + picture_name)
-  cv.destroyAllWindows()
+    window.fill(0)
+    window.blit(camera_frame, (0, 0))
+    pygame.display.flip()
+  
+  pygame.image.save(image, PICS_DIR + picture_name)
+  
   return True
 
 def get_email():
@@ -47,37 +50,44 @@ def get_email():
   return email
 
 def add_email_exif(path, email):
-  metadata = pyexiv2.ImageMetadata(path)
-  metadata.read()
-  metadata['Exif.Image.Artist'] = pyexiv2.ExifTag('Exif.Image.Artist', email)
-  metadata.write()
+  img = pyexiv2.Image(path)
+  img.modify_exif({'Exif.Image.Artist': email})
+  img.close()
 
 def main():
-  webcam = cv.VideoCapture(0)
   email = get_email()
 
-  while True:
-    picture_name = get_picture_name()
-    if not take_picture(webcam, picture_name): break
+  pygame.camera.init()
+  camlist = pygame.camera.list_cameras()
 
-    img = cv.imread(PICS_DIR + picture_name)
-    cv.imshow(picture_name, img)
+  webcam = pygame.camera.Camera(camlist[2], (640, 480))
 
-    key = cv.waitKey(0)
-    match key:
-      # esc
-      case 27: 
-        cv.destroyAllWindows()
-        continue 
-      # enter
-      case 13: 
-        increm_counter()
-        add_email_exif(PICS_DIR + picture_name, email)
-        subprocess.run([PICSENDER_DIR + "main.py"])
-        break
+  window = pygame.display.set_mode(webcam.get_size())
+  clock = pygame.time.Clock()
+  webcam.start()
 
-  webcam.release()
-  cv.destroyAllWindows()
+  picture_name = get_picture_name()
   
+  if not take_picture(webcam, window, clock, picture_name): return
+
+  increm_counter()
+  add_email_exif(PICS_DIR + picture_name, email)
+
+    # img = cv.imread(PICS_DIR + picture_name)
+    # cv.imshow(picture_name, img)
+
+    # key = cv.waitKey(0)
+    # match key:
+    #   # esc
+    #   case 27: 
+    #     cv.destroyAllWindows()
+    #     continue 
+    #   # enter
+    #   case 13: 
+    #     increm_counter()
+    #     add_email_exif(PICS_DIR + picture_name, email)
+    #     # subprocess.run([PICSENDER_DIR + "main.py"])
+    #     break
+
 if __name__ == "__main__":
   main()
