@@ -76,7 +76,6 @@ def main():
           image = take_picture(webcam, window, clock, picture_name)
           continue
         if event.key == pygame.K_RETURN: 
-          print('saved')
           pygame.image.save(image, PICS_DIR + picture_name)
           add_email_exif(PICS_DIR + picture_name, email)
           increm_counter()
