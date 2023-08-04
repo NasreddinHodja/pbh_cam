@@ -7,7 +7,6 @@ import pygame.camera
 import pyexiv2
   
 PICS_DIR = "./pics/"
-PICSENDER_DIR = "/home/nasreddin/prog/pbh_picsender/"
 
 def get_picture_name():
   with open("counter.txt", "r") as f:
@@ -39,9 +38,7 @@ def take_picture(webcam, window, clock, picture_name):
     window.blit(camera_frame, (0, 0))
     pygame.display.flip()
   
-  pygame.image.save(image, PICS_DIR + picture_name)
-  
-  return True
+  return image
 
 def get_email():
   print('\n\\ \\ [[ E-MAIL ]] ~ ', end='')
@@ -67,27 +64,23 @@ def main():
   webcam.start()
 
   picture_name = get_picture_name()
-  
-  if not take_picture(webcam, window, clock, picture_name): return
+  image = take_picture(webcam, window, clock, picture_name)
+  running = True 
+  while running:
+    if not image: return
 
-  increm_counter()
-  add_email_exif(PICS_DIR + picture_name, email)
-
-    # img = cv.imread(PICS_DIR + picture_name)
-    # cv.imshow(picture_name, img)
-
-    # key = cv.waitKey(0)
-    # match key:
-    #   # esc
-    #   case 27: 
-    #     cv.destroyAllWindows()
-    #     continue 
-    #   # enter
-    #   case 13: 
-    #     increm_counter()
-    #     add_email_exif(PICS_DIR + picture_name, email)
-    #     # subprocess.run([PICSENDER_DIR + "main.py"])
-    #     break
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT: return
+      if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+          image = take_picture(webcam, window, clock, picture_name)
+          continue
+        if event.key == pygame.K_RETURN: 
+          print('saved')
+          pygame.image.save(image, PICS_DIR + picture_name)
+          add_email_exif(PICS_DIR + picture_name, email)
+          increm_counter()
+          running = False
 
 if __name__ == "__main__":
   main()
