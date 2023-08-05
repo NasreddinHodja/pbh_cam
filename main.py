@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import shutil
 import os
 import subprocess
 import pygame.camera
