@@ -41,7 +41,7 @@ def take_picture(webcam, window, clock, picture_name):
   return image
 
 def get_email():
-  print('\n\\ \\ [[ E-MAIL ]] ~ ', end='')
+  print('\n\\ \\ [[ metadata ]] ~ ', end='')
   email = input()
   os.system('clear')
   return email
